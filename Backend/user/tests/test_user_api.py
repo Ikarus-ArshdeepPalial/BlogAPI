@@ -8,7 +8,6 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from unittest.mock import patch
 
-
 SIGNUP_URL = reverse("user:signup")
 LOGIN_URL = reverse("user:login")
 REFRESH_URL = reverse("user:refresh")
