@@ -20,9 +20,13 @@ RUN python -m venv /py && \
 
 COPY ./Backend /app
 
+# --- FIX START ---
+# Create directories inside /app to match settings.py (STATIC_ROOT = "vol/web/static")
 RUN useradd -m ikarus-user && \
-    mkdir -p /vol/web/static /vol/web/media && \
-    chown -R ikarus-user:ikarus-user /vol /app
+    mkdir -p /app/vol/web/static /app/vol/web/media && \
+    chown -R ikarus-user:ikarus-user /app && \
+    chmod -R 755 /app/vol
+# --- FIX END ---
 
 USER ikarus-user
 EXPOSE 8000
