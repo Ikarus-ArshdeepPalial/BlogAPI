@@ -1,5 +1,5 @@
 Django==3.2.25
-djangorestframework>=3.12.4,<3.13
+djangorestframework==3.14.0
 drf-spectacular>=0.15.1,<0.16
 Pillow>=9.0.0
 djangorestframework-simplejwt>=4.7.2,<5.0.0
