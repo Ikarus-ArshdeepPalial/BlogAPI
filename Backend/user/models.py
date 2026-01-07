@@ -26,7 +26,7 @@ def user_random_default_image_path():
 
 def user_image_file_path(instance, filename):
     """Set uploaded image path in media"""
-    ext = os.path.splittext(filename)[1]
+    ext = os.path.splitext(filename)[1]
     filename = f"{uuid.uuid4()}{ext}"
 
     return os.path.join("uploads", "profile", f"{instance.username}", filename)

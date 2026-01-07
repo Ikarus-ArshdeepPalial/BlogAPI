@@ -1,9 +1,13 @@
 from rest_framework import generics, permissions, status, mixins
+from rest_framework.views import APIView
 from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
-from blog.serializer import BlogSerializer , BlogPostImageSerializer
+from blog.serializer import BlogSerializer, BlogPostImageSerializer
 from blog.models import Blog, BlogContentImage
+from blog.paginator import BlogPagination
+from blog.e_search.documents import BlogDocument
+
 
 class CreateBlogView(generics.CreateAPIView):
     """Create a new blog"""
@@ -14,7 +18,47 @@ class CreateBlogView(generics.CreateAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+class GetBlogList(generics.ListAPIView):
+    """Get all blogs with pagination"""
+    
+    queryset = Blog.objects.all()
+    serializer_class = BlogSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = BlogPagination
+
+class SearchBlogs(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        query = request.query_params.get('q')
+
+        if query:
+            search = BlogDocument.search().query('multi_match', query=query, fields=['name', 'content'])
+            queryset = search.to_queryset()
+            serializer = BlogSerializer(queryset, many=True)
+            return Response(serializer.data)
+        
+        return Response([])
+    
+class UpdateBlogView(generics.RetrieveUpdateAPIView):
+    """Retrive  and update the user"""
+
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = BlogSerializer
+    queryset = Blog.objects.all()
+    
+    def get_object(self):
+        blog = super().get_object()
+
+        if self.request.method in ["PUT", "PATCH"]:
+            if blog.user != self.request.user:
+                raise PermissionDenied("You cannot update another user's blog.")
+
+        return blog
+    
 class BlogContentImageView(generics.GenericAPIView, mixins.CreateModelMixin):
+    """Blog content images"""
+    
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = BlogPostImageSerializer
     queryset = BlogContentImage.objects.all()
@@ -40,22 +84,3 @@ class BlogContentImageView(generics.GenericAPIView, mixins.CreateModelMixin):
 
     def perform_create(self, serializer):
         serializer.save()
-
-
-class UpdateBlogView(generics.RetrieveUpdateAPIView):
-    """Retrive  and update the user"""
-
-    permission_classes = [permissions.IsAuthenticated]
-    serializer_class = BlogSerializer
-    queryset = Blog.objects.all()
-
-    def get_object(self):
-        blog = super().get_object()
-
-        if self.request.method in ["PUT", "PATCH"]:
-            if blog.user != self.request.user:
-                raise PermissionDenied("You cannot update another user's blog.")
-
-        return blog
-
-

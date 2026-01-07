@@ -8,7 +8,6 @@ def make_email(link: str, to_email: str) -> dict:
     """
     subject = "Reset Your Password"
 
-    # ---------- 1 ) Plain-text fallback ----------
     text_body = (
         "Hi,\n\n"
         "You requested to reset your password.\n\n"
@@ -17,7 +16,6 @@ def make_email(link: str, to_email: str) -> dict:
         "Thanks,\nYour Website Team"
     )
 
-    # ---------- 2 ) Nicely formatted HTML ----------
     html_body = f"""
     <!DOCTYPE html>
     <html>
@@ -33,7 +31,7 @@ def make_email(link: str, to_email: str) -> dict:
                 </tr>
                 <tr>
                   <td style="font-size:15px;color:#555;">
-                    <p>Hello,</p>
+                    <p>Hello, from Ikarus Blogs</p>
                     <p>You requested to reset your password. Click the button below to proceed:</p>
                     <p style="text-align:center;margin:30px 0;">
                       <a href="{link}"

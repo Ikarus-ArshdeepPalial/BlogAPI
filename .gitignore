@@ -1,0 +1,7 @@
+# environments
+.env
+env/
+
+# Django stuff:
+/media
+/static

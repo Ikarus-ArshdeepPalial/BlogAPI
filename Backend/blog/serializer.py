@@ -8,8 +8,8 @@ class BlogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Blog
-        fields = ["id", "name", "user" ,"content","date","thumbnail"]
-        read_only_fields = ["id", "user","date"]
+        fields = ["id", "name", "user" ,"content","created_at","thumbnail"]
+        read_only_fields = ["id", "user","created_at"]
 
 
 class BlogPostImageSerializer(serializers.ModelSerializer):
