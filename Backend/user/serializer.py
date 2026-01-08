@@ -12,6 +12,7 @@ from django.utils.encoding import smart_str, force_bytes
 
 class UserSerializer(serializers.ModelSerializer):
     """serializer for user"""
+    prof_image_url = serializers.SerializerMethodField()
 
     class Meta:
         model = get_user_model()
@@ -23,8 +24,12 @@ class UserSerializer(serializers.ModelSerializer):
             "bio",
             "private_account",
             "prof_image",
+            "prof_image_url",
         ]
-        extra_kwargs = {"password": {"write_only": True}}
+        extra_kwargs = {"password": {"write_only": True}, "prof_image": {"write_only": True}}
+
+    def get_prof_image_url(self, obj):
+        return obj.get_profile_image_url()
 
     def create(self, validated_data):
         """Create and return user with encrypted password"""

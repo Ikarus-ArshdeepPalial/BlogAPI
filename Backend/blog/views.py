@@ -14,6 +14,7 @@ class CreateBlogView(generics.CreateAPIView):
 
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = BlogSerializer
+    parser_classes = [MultiPartParser, FormParser]
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -21,10 +22,30 @@ class CreateBlogView(generics.CreateAPIView):
 class GetBlogList(generics.ListAPIView):
     """Get all blogs with pagination"""
     
-    queryset = Blog.objects.all()
+    queryset = Blog.objects.all().order_by('-created_at')
     serializer_class = BlogSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
     pagination_class = BlogPagination
+
+class GetRandomBlog(APIView):
+    """Get random blog for home page or the most recent one"""
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        recent = request.query_params.get('recent', 'false').lower() == 'true'
+        
+        blog = None
+        if recent:
+            blog = Blog.objects.order_by('-created_at').first()
+        else:
+            blog = Blog.objects.order_by('?').first()
+
+        if not blog:
+            return Response({"detail": "No blogs available."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = BlogSerializer(blog)
+        return Response(serializer.data)
+    
 
 class SearchBlogs(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -59,7 +80,7 @@ class UpdateBlogView(generics.RetrieveUpdateAPIView):
 class BlogContentImageView(generics.GenericAPIView, mixins.CreateModelMixin):
     """Blog content images"""
     
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
     serializer_class = BlogPostImageSerializer
     queryset = BlogContentImage.objects.all()
     parser_classes = [MultiPartParser, FormParser]
@@ -76,6 +97,7 @@ class BlogContentImageView(generics.GenericAPIView, mixins.CreateModelMixin):
             raise NotFound("Image with that name does not exist.")
 
     def post(self, request, *args, **kwargs):
+        print(request.data)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)

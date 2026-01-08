@@ -39,11 +39,13 @@ class TextClassifier:
                 max_confidence = category_max_similarity
                 best_category = category
         
-        if max_confidence >= self.threshold:
-            return best_category
-        else:
-            # Return empty string, suitable for a CharField with blank=True
-            return ""
+        # if max_confidence >= self.threshold:
+        #     return best_category
+        # else:
+        #     # Return empty string, suitable for a CharField with blank=True
+        #     return ""
+
+        return best_category
             
  
  

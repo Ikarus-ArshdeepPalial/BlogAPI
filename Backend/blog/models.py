@@ -22,20 +22,18 @@ def blog_thumbnail_image_file_path(instance, filename):
     """Set uploaded thumbnail path in media"""
     ext = os.path.splitext(filename)[1]
     filename = f"{uuid.uuid4()}{ext}"
-    # Truncate the slug to a maximum of 50 characters
     slug = slugify(instance.name)[:50]
 
-    return os.path.join("uploads", "blogs", slug, "thumbnail", filename)
+    return os.path.join("uploads", "blogs", "thumbnails", slug, filename)
 
 # content images
-def blog_content_image_file_path(instance , filename):
+def blog_content_image_file_path(instance, filename):
     """Set uploaded content image path in media"""
+    if instance.name:
+        return os.path.join("uploads", "blogs", "content_images", instance.name)
     ext = os.path.splitext(filename)[1]
-
-    filename = f"{uuid.uuid4()}{ext}"
-    instance.name = filename
-
-    return os.path.join("uploads", "blogs", "content_images" ,f"{filename}")
+    new_filename = f"{uuid.uuid4()}{ext}"
+    return os.path.join("uploads", "blogs", "content_images", new_filename)
 
 
 class Blog(models.Model):
@@ -57,7 +55,7 @@ class Blog(models.Model):
             return static(blog_random_default_thumbnail_path())
         
     def __str__(self):
-        return str(self.summary)
+        return str(self.name)
     
 class BlogContentImage(models.Model):
     name = models.TextField(null=False, blank=False, unique=True)
