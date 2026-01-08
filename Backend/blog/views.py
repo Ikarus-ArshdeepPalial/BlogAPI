@@ -47,19 +47,29 @@ class GetRandomBlog(APIView):
         return Response(serializer.data)
     
 
-class SearchBlogs(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+class SearchBlog(APIView):
+    # permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         query = request.query_params.get('q')
+        category = request.query_params.get('category')
+
+        if not query and not category:
+            return Response([])
 
         if query:
             search = BlogDocument.search().query('multi_match', query=query, fields=['name', 'content'])
             queryset = search.to_queryset()
-            serializer = BlogSerializer(queryset, many=True)
-            return Response(serializer.data)
+        else:
+            queryset = Blog.objects.all()
+
+        if category:
+            queryset = queryset.filter(category__iexact=category)
         
-        return Response([])
+        queryset = queryset[:7]
+
+        serializer = BlogSerializer(queryset, many=True)
+        return Response(serializer.data)
     
 class UpdateBlogView(generics.RetrieveUpdateAPIView):
     """Retrive  and update the user"""

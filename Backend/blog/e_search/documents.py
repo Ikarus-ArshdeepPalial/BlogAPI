@@ -15,5 +15,6 @@ class BlogDocument(Document):
         fields = [
             'name',
             'content',
+            'category',
             'created_at'
         ]

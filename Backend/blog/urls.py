@@ -6,7 +6,7 @@ from blog.views import (
     UpdateBlogView, 
     BlogContentImageView, 
     GetBlogList,
-    SearchBlogs,
+    SearchBlog,
     GetRandomBlog
 )
 
@@ -17,6 +17,6 @@ urlpatterns = [
     path("manage/<int:pk>/", UpdateBlogView.as_view(), name="manage"),
     path("image/manage/", BlogContentImageView.as_view(), name="image-manage"),
     path("get_blogs/", GetBlogList.as_view(), name="get_blogs"),
-    path("search/", SearchBlogs.as_view(), name="search"),
+    path("search/", SearchBlog.as_view(), name="search"),
     path("getsingleblog/", GetRandomBlog.as_view(), name="get_single_blog"),
 ]
