@@ -8,16 +8,23 @@ services:
       - "8000:8000"
     volumes:
       - ./Backend:/app
+      - static_data:/app/vol/web/static
+      - media_data:/app/vol/web/media
     environment:
       - DB_HOST=db
       - DB_NAME=app
       - DB_USER=postgres
       - DB_PASS=supersecretpassword
-    command: >
-      sh -c "python manage.py runserver 0.0.0.0:8000"
+      - DEBUG=1
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - ELASTIC_HOST=https://elasticsearch:9200
+      - ELASTIC_PASSWORD=change
+    command: /entrypoint.sh
     depends_on:
       - db
-      - mongo
+      - redis
+      - elasticsearch
 
   db:
     image: postgres:15-alpine
@@ -25,16 +32,63 @@ services:
       - POSTGRES_DB=app
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=supersecretpassword
-
-  mongo:
-    image: mongo:6
-    ports:
-      - "27017:27017"
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=secret
+    
     volumes:
-      - mongo-db-data:/data/db
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.1
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=Lcn9Sug56f-lNid+Z0QY
+    ports:
+      - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+
+  celery:
+    build:
+      context: .
+      args:
+        - DEV=true
+    command: celery -A Project worker -l info
+    volumes:
+      - ./Backend:/app
+    environment:
+      - DB_HOST=db
+      - DB_NAME=app
+      - DB_USER=postgres
+      - DB_PASS=supersecretpassword
+      - DEBUG=1
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - ELASTIC_HOST=https://elasticsearch:9200
+      - ELASTIC_PASSWORD=change
+    depends_on:
+      - db
+      - redis
+      - elasticsearch
+
+  nginx:
+    build:
+      context: ./proxy
+    ports:
+      - "80:80"
+    volumes:
+      - static_data:/vol/static
+      - media_data:/vol/media
+    depends_on:
+      - api
 
 volumes:
-  mongo-db-data:
+  postgres_data:
+  es_data:
+  static_data:
+  media_data:

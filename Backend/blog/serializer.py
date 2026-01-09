@@ -6,7 +6,7 @@ from blog.models import Blog, BlogContentImage
 
 
 class BlogSerializer(serializers.ModelSerializer):
-
+    user = serializers.CharField(source='user.name', read_only=True)
     class Meta:
         model = Blog
         fields = ["id", "name", "user" ,"content","created_at","thumbnail","summary","category"]

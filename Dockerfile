@@ -30,3 +30,5 @@ RUN useradd -m ikarus-user && \
 
 USER ikarus-user
 EXPOSE 8000
+
+CMD ["/entrypoint.sh"]

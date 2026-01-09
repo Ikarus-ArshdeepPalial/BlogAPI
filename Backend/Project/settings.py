@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    "whitenoise.runserver_nostatic",
     'django.contrib.staticfiles',
     
     "core",
@@ -152,7 +153,7 @@ USE_TZ = True
 STATIC_URL = "/static/"
 MEDIA_URL = "/media/"
 
-# STATIC_ROOT = os.path.join(BASE_DIR, 'vol', 'web', 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'vol', 'web', 'staticfiles')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'vol', 'web', 'media')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'vol', 'web', 'static')]
 
@@ -209,5 +210,12 @@ ELASTICSEARCH_DSL = {
         'hosts': 'https://localhost:9200',
         'http_auth': ('elastic', env("ELASTIC_SEARCH_PASSWORD")),
         'verify_certs': False,
+    },
+}
+
+STORAGES = {
+    # ...
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
