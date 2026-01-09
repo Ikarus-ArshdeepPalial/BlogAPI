@@ -116,12 +116,8 @@ WSGI_APPLICATION = 'Project.wsgi.application'
 # }
 
 DATABASES = {
-    'default': env.db(
-        'DATABASE_URL', 
-        default=f'postgres://{env("DB_USER")}:{env("DB_PASS")}@{env("DB_HOST")}:5432/{env("DB_NAME")}'
-    )
+    'default': env.db('DATABASE_URL')
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -219,7 +215,7 @@ from urllib.parse import urlparse
 # This will be the https://7718224f76:2a22b... url
 ELASTIC_SEARCH = os.environ.get('ELASTIC_SEARCH_URL')
 
-if bonsai_url:
+if ELASTIC_SEARCH:
     # Production: Parse the Bonsai URL for django-elasticsearch-dsl
     parsed = urlparse(ELASTIC_SEARCH)
     ELASTICSEARCH_DSL = {
