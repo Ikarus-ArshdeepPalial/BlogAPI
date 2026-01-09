@@ -212,13 +212,34 @@ CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://localhost:6379/0")
 CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default="redis://localhost:6379/0")
 
 # Elastic Search 
-ELASTICSEARCH_DSL = {
-    'default': {
-        'hosts': 'https://localhost:9200',
-        'http_auth': ('elastic', env("ELASTIC_SEARCH_PASSWORD")),
-        'verify_certs': False,
-    },
-}
+import os
+from urllib.parse import urlparse
+
+# Get the URL from the environment variable we set in Render
+# This will be the https://7718224f76:2a22b... url
+ELASTIC_SEARCH = os.environ.get('ELASTIC_SEARCH_URL')
+
+if bonsai_url:
+    # Production: Parse the Bonsai URL for django-elasticsearch-dsl
+    parsed = urlparse(ELASTIC_SEARCH)
+    ELASTICSEARCH_DSL = {
+        'default': {
+            'hosts': [{
+                'host': parsed.hostname,
+                'port': parsed.port or 443,
+                'use_ssl': True,
+                'http_auth': (parsed.username, parsed.password),
+                'verify_certs': True, # Bonsai uses valid SSL certs
+            }],
+        },
+    }
+else:
+    # Local Development fallback
+    ELASTICSEARCH_DSL = {
+        'default': {
+            'hosts': 'localhost:9200',
+        },
+    }
 
 STORAGES = {
     # ...
