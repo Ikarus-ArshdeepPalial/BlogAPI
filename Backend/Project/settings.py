@@ -108,11 +108,18 @@ WSGI_APPLICATION = 'Project.wsgi.application'
 
 # settings.py
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': env.db(
+        'DATABASE_URL', 
+        default=f'postgres://{env("DB_USER")}:{env("DB_PASS")}@{env("DB_HOST")}:5432/{env("DB_NAME")}'
+    )
 }
 
 
